@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <title>Jichao Yang - Projects</title>
+        <link rel="stylesheet" href="../css/tufte/tufte.css">
+        <!-- 思源宋体: 一款与 et-book 风格接近的中文衬线字体 -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+        <style>
+            /* 英文用 et-book 优先, 中文 fallback 到思源宋体 */
+            body {
+                font-family: et-book, "Noto Serif SC", Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+                /* 对称边距, 不留侧注栏 */
+                width: 75%;
+                max-width: 900px;
+                margin: 0 auto;
+                padding: 0;
+            }
+            article {
+                padding: 5rem 1rem;
+            }
+            /* 让列表占满内容区, 条目之间有更舒适的呼吸感 */
+            nav ul {
+                width: 100%;
+                -webkit-padding-start: 1.5em;
+                padding-left: 1.5em;
+            }
+            nav ul li {
+                width: auto;
+                margin-bottom: 2.8em;
+                line-height: 1.9;
+            }
+            nav ul li .project-name {
+                font-weight: bold;
+            }
+            nav ul li p {
+                width: auto;
+                margin: 0.6em 0 0 0;
+            }
+        </style>
+    </head>
+    <body>
+        <article>
+            <h1>Projects</h1>
+            <p>一些平时写着玩的开源小工具。</p>
+
+            <section>
+                <nav>
+                    <ul style="list-style-type: '❧ '">
+
+                        <li>
+                            <a class="project-name" href="https://github.com/Jichao-Yang/video-reader" target="_blank">video-reader</a>
+                            <p>
+                                搬家那会儿对象让我研究一下哪个牌子的洗衣机最值得买。我懒得一个一个点开 B 站视频慢慢看, 就干脆写了这个工具替我看: 给它一个主题, 它会自动去 B 站搜相关视频, 抓下字幕, 交给 LLM 提炼事实, 最后合成一份可读的调研报告。从此"帮我查一下市面上的洗衣机哪个比较好"变成了敲一行命令的事。
+                            </p>
+                        </li>
+
+                        <li>
+                            <a class="project-name" href="https://github.com/Jichao-Yang/home-mapper" target="_blank">home-mapper</a>
+                            <p>
+                                和对象在上海找房那阵子做的。每看到一个候选小区都得手动查它到我俩公司的地铁通勤时间, 于是我把上海所有地铁站到我们两个公司的通勤时间提前算好, 叠在 Leaflet 地图上。每个潜在的地铁站自动查询高德地图通勤时间, 一眼就能看出这个小区值不值得约看房。之后找房效率提高了大概一个量级。后来打算把房租数据也接进来的，结果被贝壳的反爬技术吓晕，作罢。
+                            </p>
+                        </li>
+
+                        <li>
+                            <a class="project-name" href="https://github.com/Jichao-Yang/git-byline" target="_blank">git-byline</a>
+                            <p>
+                                有一天我翻自己的 GitHub 主页, 发现那张贡献热力图看起来冷冷清清, 但其实我写的代码并不少——只是习惯攒一堆改动再一次性 commit 上去, 小方块就变得很稀疏。有点不服气, 就写了这个工具: 它按"每天新增多少行代码"重新画贡献图, 让我的实际工作量能更诚实地呈现出来。默认的 GitHub 风格绿格子配色也保留了。不过做完了发现和 GitHub 上的贡献图长得差不多。不是Github的问题，是我肝功能的问题。
+                            </p>
+                        </li>
+
+                        <li>
+                            <a class="project-name" href="https://github.com/Jichao-Yang/poi-marker" target="_blank">poi-marker</a>
+                            <p>
+                                我的小红书里有一百万亿个收藏, 全烂在里面, 想去吃饭的时候找不到, 种草了又吃不上。所以我做了这个轻量的移动端地图: 能往上打点、写备注、分颜色。技术栈是 Vue 3 + FastAPI + 高德地图；但是适配移动端网页开发真的太难搞了，项目半死，哪天头铁了再回来接着搞。
+                            </p>
+                        </li>
+
+                        <li>
+                            <a class="project-name" href="https://github.com/Jichao-Yang/Triplet-Network" target="_blank">Triplet-Network</a>
+                            <p>
+                                本科时期对论文 <em>Deep Metric Learning Using Triplet Network</em> 的一次复现, 也是我写的第一个深度学习项目。现在看看代码质量相当辣眼睛, 但当时折磨师兄一整天之后，终于跑通结果的感觉可能会记一辈子。
+                            </p>
+                        </li>
+
+                        <li>
+                            <a class="project-name" href="https://github.com/Jichao-Yang/Batch-CEA" target="_blank">Batch-CEA</a>
+                            <p>
+                                更早期的一个 MATLAB 小工具, 对 NASA 的 Chemical Equilibrium Application 做了批处理改进。大一在火箭推进方向的实验室打工顺手写的。
+                            </p>
+                        </li>
+
+                    </ul>
+                </nav>
+            </section>
+
+        </article>
+    </body>
+</html>
