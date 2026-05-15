@@ -1,0 +1,12 @@
+/* Site-wide overrides applied on top of tufte.css.
+   Loaded after tufte.css in every page <head>. */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap');
+
+/* English uses et-book; Chinese falls back to Noto Serif SC for a matching serif feel.
+   font-size-adjust: from-font anchors the visual size to et-book's natural x-height,
+   so CJK glyphs (which fill their em box) get scaled down to match Latin text. */
+body {
+    font-family: et-book, "Noto Serif SC", Palatino, "Palatino Linotype", "Palatino LT STD", "Book Antiqua", Georgia, serif;
+    font-size-adjust: from-font;
+}
