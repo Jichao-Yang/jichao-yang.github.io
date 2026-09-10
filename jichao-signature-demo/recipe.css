@@ -1,0 +1,145 @@
+/* This article keeps the site's Tufte type and paper, with room for code. */
+body.signature-recipe {
+    width: min(90%, 1080px);
+    padding: 0;
+    margin: 0 auto;
+}
+.signature-recipe article {
+    padding: 3rem 0 5rem;
+}
+.signature-recipe h1 {
+    max-width: 850px;
+    line-height: 1.25;
+    margin-top: 2rem;
+}
+.signature-recipe h2 {
+    font-style: normal;
+    line-height: 1.4;
+}
+.signature-recipe h3 {
+    font-style: normal;
+    line-height: 1.4;
+}
+.signature-recipe section > p,
+.signature-recipe section > table,
+.signature-recipe .article-nav,
+.signature-recipe .reading-width {
+    width: min(100%, 760px);
+}
+.signature-recipe p {
+    line-height: 1.85;
+}
+.signature-recipe .meta,
+.signature-recipe .article-nav {
+    font-size: 1.05rem;
+}
+.signature-recipe .meta {
+    color: #666;
+}
+.signature-recipe .article-nav ul {
+    padding-left: 1.4rem;
+    list-style-type: '❧ ';
+    font-size: 1.15rem;
+}
+.signature-recipe pre {
+    max-width: 850px;
+    margin: 1.6rem 0;
+    padding: 1rem 1.2rem;
+    border: 1px solid #d6d6ce;
+    overflow-x: auto;
+    box-sizing: border-box;
+}
+.signature-recipe pre > code {
+    width: 100%;
+    margin: 0;
+    overflow: visible;
+    font-size: 0.94rem;
+    line-height: 1.6;
+}
+.signature-recipe p code,
+.signature-recipe td code {
+    overflow-wrap: anywhere;
+}
+.signature-recipe .table-scroll {
+    max-width: 850px;
+    overflow-x: auto;
+}
+.signature-recipe table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+.signature-recipe th,
+.signature-recipe td {
+    padding: 0.65rem 0.8rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid #d6d6ce;
+}
+.signature-recipe th {
+    font-weight: normal;
+    border-bottom: 2px solid currentColor;
+}
+.signature-recipe figure {
+    max-width: 760px;
+    margin: 2rem 0;
+}
+.signature-recipe figcaption {
+    float: none;
+    max-width: 100%;
+    margin-top: 0.8rem;
+}
+.signature-recipe .pixel-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.4rem;
+    max-width: 760px;
+    margin: 2rem 0;
+}
+.signature-recipe figure.pixel-option {
+    margin: 0;
+    min-width: 0;
+    text-align: center;
+}
+.signature-recipe .pixel-stage {
+    padding: 1.5rem 0;
+    border: 1px solid #d6d6ce;
+}
+.signature-recipe .pixel-stage img {
+    width: 96px;
+    height: 96px;
+}
+.signature-recipe .pixel-ink {
+    image-rendering: pixelated;
+    filter: brightness(0);
+    opacity: 0.9;
+}
+.signature-recipe .signature-size {
+    margin-top: 0.8rem;
+    font-size: 1rem;
+    line-height: 1.8;
+}
+.signature-recipe .signature-size img {
+    width: 12px;
+    height: 12px;
+    vertical-align: -1px;
+}
+.signature-recipe footer {
+    margin-top: 3rem;
+}
+@media (max-width: 760px) {
+    .signature-recipe h1 { font-size: 2.5rem; }
+    .signature-recipe h2 { font-size: 1.9rem; }
+    .signature-recipe p { font-size: 1.2rem; }
+    .signature-recipe pre { padding: 0.8rem; }
+    .signature-recipe th,
+    .signature-recipe td { padding: 0.6rem; }
+}
+@media (prefers-color-scheme: dark) {
+    .signature-recipe .meta { color: #aaa; }
+    .signature-recipe pre,
+    .signature-recipe td,
+    .signature-recipe .pixel-stage { border-color: #444; }
+    .signature-recipe .pixel-ink { filter: brightness(0) invert(1); }
+}

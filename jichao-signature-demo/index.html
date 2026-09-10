@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="用飞书链接预览的 GIF 前缀图标，让个人签名动起来。附可运行的 Python 示例、配置步骤，以及正方形和长条 GIF 的实测边界。">
+    <title>让飞书签名动起来：一个 GIF 实验 — Jichao Yang</title>
+    <link rel="canonical" href="https://jichaoyang.com/jichao-signature-demo/">
+    <link rel="stylesheet" href="../css/tufte/tufte.css">
+    <link rel="stylesheet" href="../css/site.css">
+    <link rel="stylesheet" href="recipe.css">
+</head>
+<body class="signature-recipe">
+<article>
+    <nav class="article-nav" aria-label="返回首页"><a href="../">← Jichao Yang</a></nav>
+    <h1>让飞书签名动起来：<br>一个 GIF 实验</h1>
+    <p class="meta">2026 年 9 月 10 日 · 飞书个人签名实验记录</p>
+
+    <section id="idea">
+        <p>飞书个人签名里，可以放一颗会循环播放的 GIF，再接一段自定义文字，整条签名仍然是通往这篇文章的链接。做法是让飞书把签名中的 URL 解析成「图片前缀＋标题」，其中图片恰好是一张动图。这篇文章把实际走通的步骤记下来，也记录那些尝试突破显示限制、最后却没有达到预期的做法。</p>
+        <p>动画来自 GIF 自己的帧，客户端加载后就会循环播放，不需要每秒修改签名。链接预览服务负责告诉飞书「这个 URL 应该显示什么标题、用哪张图」；重新解析时仍然需要它在线。本文实验使用的是临时运行在 Mac 上的服务；它停机后，已经加载的动画可能继续播放，但新一次预览解析未必成功。</p>
+        <nav class="article-nav" aria-label="文章目录">
+            <ul>
+                <li><a href="#limits">先看实际显示的边界</a></li>
+                <li><a href="#app">配置应用和链接预览</a></li>
+                <li><a href="#image">把 GIF 变成 image_key</a></li>
+                <li><a href="#service">运行最小预览服务</a></li>
+                <li><a href="#signature">保存签名并验证</a></li>
+            </ul>
+        </nav>
+    </section>
+
+    <section id="limits">
+        <h2>一张大图，最后住进一个小图标</h2>
+        <!-- selected-signature-slot: parent will identify the final chosen signature here. -->
+        <p>下面三张是适合小图标的像素动图，来自 <a href="https://enui.itch.io/bitsy-dungeon-tiles">enui 的 Bitsy Dungeon Tiles</a>，原素材按 CC0 发布。每张 GIF 把 8 × 8 像素角色居中放进 12 × 12 透明画布，两帧各播放 400 毫秒。这是本文的网页预览，不是飞书截图；大图放大到 96 × 96 方便看动作，文字前的小图保持 12 × 12。</p>
+        <div class="pixel-gallery" aria-label="三个可下载的像素动图">
+            <figure class="pixel-option">
+                <div class="pixel-stage"><img class="pixel-ink" src="assets/enui-modron-12.gif" width="96" height="96" alt="Modron 两帧像素动画的放大预览"></div>
+                <div class="signature-size"><img class="pixel-ink" src="assets/enui-modron-12.gif" width="12" height="12" alt=""> 精神状态良好</div>
+                <figcaption>Modron · 小小机械生物<br><a href="assets/enui-modron-12.gif" download>下载 12 × 12 GIF</a></figcaption>
+            </figure>
+            <figure class="pixel-option">
+                <div class="pixel-stage"><img class="pixel-ink" src="assets/enui-bat-12.gif" width="96" height="96" alt="蝙蝠两帧像素动画的放大预览"></div>
+                <div class="signature-size"><img class="pixel-ink" src="assets/enui-bat-12.gif" width="12" height="12" alt=""> 夜间活动中</div>
+                <figcaption>Bat · 蝙蝠<br><a href="assets/enui-bat-12.gif" download>下载 12 × 12 GIF</a></figcaption>
+            </figure>
+            <figure class="pixel-option">
+                <div class="pixel-stage"><img class="pixel-ink" src="assets/enui-goblin-12.gif" width="96" height="96" alt="哥布林两帧像素动画的放大预览"></div>
+                <div class="signature-size"><img class="pixel-ink" src="assets/enui-goblin-12.gif" width="12" height="12" alt=""> 今天也很有精神</div>
+                <figcaption>Goblin · 哥布林<br><a href="assets/enui-goblin-12.gif" download>下载 12 × 12 GIF</a></figcaption>
+            </figure>
+        </div>
+        <p>我先试了一只<a href="https://tenor.com/view/dancing-cockroach-meme-roach-spinning-gif-15776567">跳舞的蟑螂</a>：原图为 190 × 200 像素，46 帧，每帧 20 毫秒，总共 0.92 秒循环一次，文件约 181 KB。它在飞书签名里确实会动，Mac 客户端和 Chrome 网页端都看到了动画。网页聊天顶部的签名图标容器实测为 12 × 12 CSS 像素；这是那个具体位置的显示尺寸，不能当作所有客户端、所有签名位置的统一规格。</p>
+        <p>接着，我把同一张 GIF 横向复制了十份，拼成 1900 × 200 像素的长条，保留全部帧和透明度。长图成功上传，也成功进入链接预览，但签名并没有横向展开：十只蟑螂一起缩进原来的小方框，成了一条几乎看不清的细线。资源能上传多大，与界面愿意给它多少空间，是两层限制。</p>
+        <div class="table-scroll">
+            <table>
+                <thead><tr><th scope="col">实验素材</th><th scope="col">文件与动画</th><th scope="col">网页签名里的结果</th></tr></thead>
+                <tbody>
+                    <tr><td>单只蟑螂<br>190 × 200 像素</td><td>185,506 字节<br>46 帧，0.92 秒循环</td><td>轮廓可辨，持续播放；图标容器为 12 × 12 CSS 像素</td></tr>
+                    <tr><td>横排十只<br>1900 × 200 像素</td><td>1,057,062 字节<br>46 帧，0.92 秒循环</td><td>仍占同一个小方框，长条压成细线</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>还有一个会影响选图的细节：这个网页位置会用 SVG 颜色滤镜给前缀图标染色。原图的色彩不一定保留，透明轮廓和动作幅度反而更关键；尽量选接近正方形、背景透明、缩小后仍然认得出的动图。本文没有验证手机端、其他账号或其他租户，因此这些实测结果只覆盖上述客户端和当前账号。</p>
+        <p>HTML 和 Markdown 也试过。在签名里直接写 <code>&lt;b&gt;文字&lt;/b&gt;</code>、<code>**粗体**</code> 或 <code>[名称](https://example.com)</code>，没有得到预期的富文本效果；自定义名称靠后面介绍的 <code>inline.title</code> 返回。这里利用的是飞书链接预览能力，输入框本身没有因此变成通用的 HTML 编辑器。</p>
+    </section>
+
+    <section id="app">
+        <h2>先把链接交给自己的应用解析</h2>
+        <p>这条路线需要一个有权配置的飞书企业自建应用、一个你自己控制的文章 URL，以及一台能持续运行 Python 的电脑或服务器。先决定签名点开后要去哪里，后面的匹配规则、服务配置和签名内容都围绕同一个地址填写。本文使用的地址就是 <a href="https://jichaoyang.com/jichao-signature-demo/">https://jichaoyang.com/jichao-signature-demo/</a>；复现时请换成自己的页面。</p>
+        <p>在开放平台给应用添加「链接预览」能力，登记要解析的 URL 规则。规则填写域名和路径，不带 <code>https://</code>，例如本文页面对应 <code>jichaoyang.com/jichao-signature-demo</code>。平台如何匹配域名和子路径，以配置界面的说明及<a href="https://open.feishu.cn/document/development-link-preview/link-preview-development-guide">链接预览开发指南</a>为准；下方示例服务会进一步核对完整 URL，避免对同一路径下的其他页面返回这份签名。</p>
+        <p>「事件与回调 → 回调配置」中需要添加 <code>url.preview.get</code> 回调，并选择长连接接收方式。保存长连接设置前，先完成下文的图片准备并启动服务，再回来验证连接。长连接由程序主动连向飞书，这份示例不需要开放公网入站端口，也不需要为回调单独搭一个 HTTPS 网站；具体顺序可对照<a href="https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/server-side-sdk/python--sdk/handle-callbacks">官方 Python SDK 回调指南</a>。</p>
+        <p>新增能力、回调或 URL 规则之后，还需要创建并发布正式版本，且应用的可用范围必须包含测试账号。我的实验只开放给本人；不同租户的发布政策不同，页面如果要求管理员审批，就按组织流程处理，不能把本次实验的免审批情况当作普遍条件。版本真正生效后，再测试签名渲染。</p>
+    </section>
+
+    <section id="image">
+        <h2>把 GIF 上传成飞书能引用的图片</h2>
+        <p>本文实际走通的是一条操作上的捷径：在飞书「与自己聊天」中，以「图片／视频」方式发送 GIF，再从已登录的飞书网页中找到这张图的 <code>image_key</code>。它用的是自己的图片消息，不需要给其他人发送测试消息，也没有为了实验额外恢复机器人图片上传权限。请注意选择图片发送方式，作为普通文件附件发送不是同一个路径。</p>
+        <p>用 Chrome 打开飞书网页版，进入自己的聊天，等 GIF 上传完成并显示出来，再打开开发者工具的 Console。下面这段只读取当前页面中已加载图片的 DOM 属性，输出图片标识和尺寸；它不读取 Cookie、不发送请求，也不修改页面。对照刚发的 GIF 尺寸选择对应条目，别把其他图片的标识拿来用；尺寸仍为 0 时，等上传结束再刷新页面。</p>
+        <pre><code>Array.from(document.querySelectorAll('img[data-lark-image-uri]'))
+  .map((img) =&gt; {
+    const uri = img.getAttribute('data-lark-image-uri') || '';
+    return {
+      image_key: uri.startsWith('imkey://')
+        ? uri.slice('imkey://'.length).split('?')[0]
+        : null,
+      width: img.getAttribute('data-lark-image-width'),
+      height: img.getAttribute('data-lark-image-height')
+    };
+  })
+  .filter((image) =&gt; image.image_key?.startsWith('img_'));</code></pre>
+        <p>这里取的是 <code>imkey://</code> 后、问号前、以 <code>img_</code> 开头的原始图片标识；上传过程中的临时标识会被筛掉。某些 DOM 属性会出现带 <code>_MIDDLE</code> 的派生图片标识，不要把它当成原始 <code>image_key</code>。这一步来自当前网页端的实测，属于可能变化的前端实现，并非飞书承诺稳定的公开接口；找不到属性时，应重新检查页面，而不是猜一个标识。</p>
+        <p>如果你要做长期维护的工具，可以另行研究官方的<a href="https://open.feishu.cn/document/uAjLw4CM/ukTMukTMukTM/reference/im-v1/image/create">上传图片 API</a>。它是独立的上传路线，文档要求应用先启用机器人能力，并具备相应的图片资源上传权限；其中 GIF 的限制为不超过 2000 × 2000 像素、文件不超过 10 MB。这些是该上传 API 的规格，不能据此推定签名的显示尺寸，也不是本次自聊上传路径测出的上限。本文实验没有依赖这条 API；自聊资源能在自己的签名中显示，也不等于已经证明所有账号都能访问它。</p>
+    </section>
+
+    <section id="service">
+        <h2>用一个小程序返回标题和图片</h2>
+        <p>准备 Python 3.10 或更高版本，下载<a href="preview.py" download>完整示例 preview.py</a>，在它所在的目录执行下面的命令。示例固定使用 <code>lark-oapi==1.7.3</code>，与本次实验一致；<code>--self-test</code> 只检查返回内容和 URL 匹配，不会连接飞书。最后一条命令才启动真实服务。</p>
+        <pre><code>python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install lark-oapi==1.7.3
+python preview.py --self-test
+python preview.py</code></pre>
+        <p>程序会依次询问 App ID、App Secret、完整文章 URL、签名显示文字和图片 <code>image_key</code>。App ID 和 App Secret 来自开放平台的应用凭证页面；Secret 通过终端隐藏输入，只留在进程内存中，示例不会把它写入文件。停止进程后再运行，需要重新输入这些信息。</p>
+        <p>核心回调只有下面这几行：请求 URL 完全一致时，返回 <code>inline.title</code> 和 <code>inline.image_key</code>；其他 URL 返回空对象。完整文件负责收集配置和建立 SDK 长连接，不读取网页、不抓取文章内容，也不需要更新签名。正式字段定义可查<a href="https://open.feishu.cn/document/uAjLw4CM/ukzMukzMukzM/development-link-preview/pull-link-preview-data-callback-structure">拉取链接预览数据回调结构</a>。</p>
+        <pre><code>def make_preview(url, title, image_key):
+    def preview(event):
+        if event.event.context.url != url:
+            return {}
+        print("收到目标链接的预览请求。", flush=True)
+        return {"inline": {"title": title, "image_key": image_key}}
+    return preview</code></pre>
+        <p>官方要求在 3 秒内响应这类回调，因此这个版本直接返回内存里的固定内容，不把下载图片、生成 GIF 或请求第三方服务塞进回调。图片已提前上传，播放时由客户端加载它；服务返回的只是一个可引用的标识。需要展示整张卡片时才涉及独立的 <code>card</code> 字段，本文的签名图标不需要它。</p>
+        <p>启动程序后，回开放平台保存并验证长连接，确认显示已连接，再完成前面提到的正式版本发布。同一应用开了多个 SDK 客户端时，飞书会把事件交给其中一个客户端处理，因此替换实验服务时要停掉旧进程，否则可能间歇性拿到旧标题或空响应。这个示例没有安装常驻服务或开机启动项：终端退出、电脑睡眠或断网，都可能让新的解析请求拿不到响应。若想长期保留，后续要把同一个小程序放到持续在线的运行环境；GIF 本身则继续按文件里的帧循环，二者互不替代。</p>
+        <p>这篇文章由 GitHub Pages 提供静态网页托管，它不会运行上面的 Python，也不会替你维持与飞书的 WebSocket 长连接。把文章发布到网站，只解决了「点击签名去哪里」；让链接预览持续可用，还需要单独运行这个程序。</p>
+    </section>
+
+    <section id="signature">
+        <h2>最后，把文章 URL 放进签名</h2>
+        <p>编辑个人签名，先清掉旧内容，粘贴与程序配置完全一致的文章 URL，然后点击别处结束编辑并确认保存。链接匹配成功时，飞书会把地址显示成你返回的标题，并在前面加上 GIF 图标。重新打开个人资料或自己的聊天，既要看它是否会动，也要点击标题确认落到了正确文章。</p>
+        <p>文章地址直接作为签名里的原始 URL，能省掉一层容易混淆的跳转配置。实验中，单独设置的 PC 跳转地址可能在后续编辑保存时被写回签名内容，影响下一次规则匹配；如果目的只是「点击签名读教程」，让原始 URL、预览匹配地址和文章地址保持一致就够了。</p>
+        <p>只看到原始网址时，先核对三件事：规则是否匹配、正式版本是否已发布并包含当前账号、长连接服务是否在线且收到了这个 URL 的回调。旧签名还可能沿用已有解析结果，重新打开页面或重新保存后再观察。缓存更新周期并没有在这次实验中测出保证值，因此不能把「刚改完还没变」直接判成图片失败。</p>
+        <p>能看到标题、图标却不动时，要再确认上传的是 GIF 图片而非普通文件，以及 <code>image_key</code> 是否来自对应的原始图片。先拿一张尺寸接近正方形的短循环验证，更容易分清素材问题和图标缩放问题。十只横排蟑螂已经替这个实验试过了：把画布加宽，并不能向签名多要九个图标的位置。</p>
+    </section>
+
+    <footer class="reading-width">
+        <p>这是一份截至 2026 年 9 月 10 日的实验记录。链接预览的配置和回调有官方文档可查；GIF 在个人签名中的播放、网页上的 12 × 12 图标以及自聊图片取标识，则是这次实际观察到的行为。客户端更新后如果表现不同，应重新验证这些观察，而不要把它们当成长期兼容承诺。</p>
+        <nav class="article-nav"><a href="../">返回首页</a> · <a href="preview.py" download>下载 Python 示例</a></nav>
+    </footer>
+</article>
+</body>
+</html>

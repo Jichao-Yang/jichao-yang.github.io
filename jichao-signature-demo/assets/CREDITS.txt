@@ -1,0 +1,5 @@
+像素动画原作：enui，《Bitsy dungeon tiles 8x8 1bit pixel assets》。
+原作页面：https://enui.itch.io/bitsy-dungeon-tiles
+许可：CC0 1.0 Universal，https://creativecommons.org/publicdomain/zero/1.0/
+
+本目录的 modron、bat、goblin GIF 来自原作的 8×8 二值动画帧。导出时保留原始像素形状、帧序和每帧 400 毫秒的节奏，仅将背景转为透明、实体转为白色，并居中放入 12×12 画布；没有重画或缩放角色。
